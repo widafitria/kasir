@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PKL</title>
+    <title>pkl</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
@@ -161,6 +161,25 @@
             justify-content: center;
             color: white;
             font-size: 48px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .product-image-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            background: var(--gradient);
+            color: white;
+            font-size: 48px;
         }
         
         .cart-item {
@@ -313,23 +332,74 @@
             display: flex;
             gap: 10px;
             margin-bottom: 20px;
+            flex-wrap: wrap;
         }
         
         .category-btn {
-            flex: 1;
             text-align: center;
-            padding: 10px;
+            padding: 10px 15px;
             border: 2px solid #e9ecef;
             border-radius: 10px;
             cursor: pointer;
             transition: all 0.3s;
             font-weight: 500;
+            flex: 1;
+            min-width: 120px;
         }
         
         .category-btn.active {
             border-color: var(--primary);
             background: rgba(67, 97, 238, 0.1);
             color: var(--primary);
+        }
+        
+        .image-preview {
+            width: 100%;
+            height: 150px;
+            border: 2px dashed #dee2e6;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            margin-bottom: 15px;
+            background-color: #f8f9fa;
+        }
+        
+        .image-preview img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        
+        .stats-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .stats-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stats-card i {
+            font-size: 32px;
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+        
+        .stats-card h3 {
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        
+        .stats-card p {
+            color: #6c757d;
+            margin-bottom: 0;
         }
     </style>
 </head>
@@ -339,7 +409,7 @@
         <div class="container">
             <a class="navbar-brand d-flex align-items-center" href="#">
                 <i class="fas fa-utensils me-2"></i>
-                <span class="fw-bold">Kasir Sisi Cai Camp Ground</span>
+                <span class="fw-bold">Kasir - Sisi Cai Camp Ground</span>
             </a>
             <div class="navbar-nav ms-auto">
                 <div class="nav-item dropdown">
@@ -365,12 +435,12 @@
                     <ul class="nav flex-column">
                         <li class="nav-item">
                             <a class="nav-link active" href="#" data-tab="barang">
-                                <i class="fas fa-box"></i>Manajemen Barang
+                                <i class="fas fa-box"></i>Manajemen Menu
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="#" data-tab="transaksi">
-                                <i class="fas fa-cash-register"></i>Transaksi Baru
+                                <i class="fas fa-cash-register"></i>Transaksi Pembayaran 
                             </a>
                         </li>
                     </ul>
@@ -381,7 +451,7 @@
                                 <i class="fas fa-shopping-cart text-primary"></i>
                             </div>
                             <div class="flex-grow-1 ms-3">
-                                <p class="mb-0 fw-bold">Total Penjualan</p>
+                                <p class="mb-0 fw-bold">Total Penjualan Hari Ini</p>
                                 <h5 class="mb-0 text-primary" id="totalPenjualanHariIni">Rp 0</h5>
                             </div>
                         </div>
@@ -391,7 +461,7 @@
                                 <i class="fas fa-utensils text-success"></i>
                             </div>
                             <div class="flex-grow-1 ms-3">
-                                <p class="mb-0 fw-bold">Total Barang</p>
+                                <p class="mb-0 fw-bold">Total Menu</p>
                                 <h5 class="mb-0 text-success" id="totalBarangTersedia">0</h5>
                             </div>
                         </div>
@@ -405,9 +475,9 @@
                 <div id="tabBarang" class="tab-content">
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0">Daftar Barang</h5>
+                            <h5 class="mb-0">Daftar Menu</h5>
                             <button class="btn btn-primary" id="btnTambahBarang">
-                                <i class="fas fa-plus me-1"></i>Tambah Barang
+                                <i class="fas fa-plus me-1"></i>Tambah Menu
                             </button>
                         </div>
                         <div class="card-body">
@@ -416,6 +486,7 @@
                                     <thead>
                                         <tr>
                                             <th>No</th>
+                                            <th>Gambar</th>
                                             <th>Menu</th>
                                             <th>Harga</th>
                                             <th>Kategori</th>
@@ -448,8 +519,11 @@
                                 <div class="card-body">
                                     <div class="category-filter">
                                         <div class="category-btn active" data-category="semua">Semua</div>
-                                        <div class="category-btn" data-category="makanan">Makanan</div>
-                                        <div class="category-btn" data-category="minuman">Minuman</div>
+                                        <div class="category-btn" data-category="snack">Snack</div>
+                                        <div class="category-btn" data-category="food">Food</div>
+                                        <div class="category-btn" data-category="drink">Drink</div>
+                                        <div class="category-btn" data-category="menu-anak">Menu Anak</div>
+                                        <div class="category-btn" data-category="tambahan">Menu Tambahan</div>
                                     </div>
                                     <div class="row" id="daftarBarangTransaksi">
                                         <!-- Daftar barang untuk transaksi -->
@@ -489,6 +563,7 @@
                                                     <i class="fas fa-money-bill-wave"></i>
                                                     <span>Cash</span>
                                                 </div>
+                                                
                                                 <div class="payment-option" data-method="transfer">
                                                     <i class="fas fa-university"></i>
                                                     <span>Transfer</span>
@@ -521,7 +596,7 @@
             </div>
         </div>
     </div>
-    
+
     <!-- Modal Barang -->
     <div class="modal fade" id="modalBarang" tabindex="-1">
         <div class="modal-dialog">
@@ -534,7 +609,7 @@
                     <form id="formBarang">
                         <input type="hidden" id="barangId">
                         <div class="mb-3">
-                            <label for="namaBarang" class="form-label">Nama Barang</label>
+                            <label for="namaBarang" class="form-label">Nama Menu</label>
                             <input type="text" class="form-control" id="namaBarang" required>
                         </div>
                         <div class="mb-3">
@@ -544,9 +619,20 @@
                         <div class="mb-3">
                             <label for="kategoriBarang" class="form-label">Kategori</label>
                             <select class="form-control" id="kategoriBarang" required>
-                                <option value="makanan">Makanan</option>
-                                <option value="minuman">Minuman</option>
+                                <option value="snack">Snack</option>
+                                <option value="food">Food</option>
+                                <option value="drink">Drink</option>
+                                <option value="menu-anak">Menu Anak</option>
+                                <option value="tambahan">Menu Tambahan</option>
                             </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="gambarBarang" class="form-label">Gambar Menu</label>
+                            <input type="file" class="form-control" id="gambarBarang" accept="image/*">
+                            <div class="form-text">Unggah gambar produk (opsional)</div>
+                        </div>
+                        <div class="image-preview" id="imagePreview">
+                            <span>Pratinjau gambar akan muncul di sini</span>
                         </div>
                     </form>
                 </div>
@@ -569,9 +655,9 @@
                 <div class="modal-body p-0">
                     <div id="strukPrint" class="struk-container">
                         <div class="struk-header">
-                            <h5 class="mb-2">Kasir Sisi Cai Camp Ground</h5>
-                            <p class="mb-1">Jl. Raya Gunung Pancar No. 123</p>
-                            <p class="mb-1">Telp: 089516429434</p>
+                            <h5 class="mb-2">Kasir UMKM</h5>
+                            <p class="mb-1">Jl. Contoh No. 123</p>
+                            <p class="mb-1">Telp: 08123456789</p>
                         </div>
                         <div id="strukContent">
                             <!-- Konten struk akan diisi oleh JavaScript -->
@@ -634,7 +720,29 @@
                     id: dokumen.id,
                     nama: dokumen.data().nama,
                     harga: dokumen.data().harga,
-                    kategori: dokumen.data().kategori
+                    kategori: dokumen.data().kategori,
+                    gambar: dokumen.data().gambar || null
+                });
+            });
+
+            return hasilKueri;
+        }
+
+        // Fungsi untuk mengambil daftar penjualan
+        export async function ambilDaftarPenjualan() {
+            const refDokumen = collection(basisdata, "penjualan");
+            const kueri = query(refDokumen, orderBy("tanggal", "desc"));
+            const cuplikanKueri = await getDocs(kueri);
+
+            let hasilKueri = [];
+            cuplikanKueri.forEach((dokumen) => {
+                const data = dokumen.data();
+                hasilKueri.push({
+                    id: dokumen.id,
+                    items: data.items,
+                    totalHarga: data.totalHarga,
+                    metodeBayar: data.metodeBayar,
+                    tanggal: data.tanggal.toDate()
                 });
             });
 
@@ -642,12 +750,13 @@
         }
 
         // Fungsi untuk menambah barang
-        export async function tambahBarang(nama, harga, kategori) {
+        export async function tambahBarang(nama, harga, kategori, gambar = null) {
             try {
                 const refDokumen = await addDoc(collection(basisdata, "barang"), {
                     nama: nama,
                     harga: parseInt(harga),
-                    kategori: kategori
+                    kategori: kategori,
+                    gambar: gambar
                 });
                 console.log("Berhasil menyimpan data barang");
                 return true;
@@ -658,13 +767,14 @@
         }
 
         // Fungsi untuk mengedit barang
-        export async function ubahBarang(id, nama, harga, kategori) {
+        export async function ubahBarang(id, nama, harga, kategori, gambar = null) {
             try {
                 const refDokumen = doc(basisdata, "barang", id);
                 await updateDoc(refDokumen, {
                     nama: nama,
                     harga: parseInt(harga),
-                    kategori: kategori
+                    kategori: kategori,
+                    gambar: gambar
                 });
                 console.log("Berhasil mengubah data barang");
                 return true;
@@ -689,15 +799,12 @@
         // Fungsi untuk menambah penjualan
         export async function tambahPenjualan(keranjang, totalHarga, metodeBayar) {
             try {
-                for (let item of keranjang) {
-                    const refDokumen = await addDoc(collection(basisdata, "penjualan"), {
-                        namaBarang: item.nama,
-                        jumlah: item.jumlah,
-                        totalHarga: item.total,
-                        metodeBayar: metodeBayar,
-                        tanggal: Timestamp.now()
-                    });
-                }
+                const refDokumen = await addDoc(collection(basisdata, "penjualan"), {
+                    items: keranjang,
+                    totalHarga: totalHarga,
+                    metodeBayar: metodeBayar,
+                    tanggal: Timestamp.now()
+                });
                 console.log("Berhasil menyimpan data penjualan");
                 return true;
             } catch (error) {
@@ -711,6 +818,7 @@
         window.tambahBarang = tambahBarang;
         window.ubahBarang = ubahBarang;
         window.hapusBarang = hapusBarang;
+        window.ambilDaftarPenjualan = ambilDaftarPenjualan;
         window.tambahPenjualan = tambahPenjualan;
     </script>
 
@@ -718,12 +826,15 @@
     <script>
         $(document).ready(function() {
             let daftarBarang = [];
+            let daftarPenjualan = [];
             let keranjang = [];
             let editBarangId = null;
             let metodeBayar = 'cash';
+            let gambarBarang = null;
 
             // Inisialisasi aplikasi
             muatDaftarBarang();
+            muatDaftarPenjualan();
 
             // Event handler untuk tab
             $('.nav-link[data-tab]').click(function() {
@@ -748,7 +859,25 @@
                 editBarangId = null;
                 $('#modalBarangTitle').text('Tambah Barang');
                 $('#formBarang')[0].reset();
+                $('#imagePreview').html('<span>Pratinjau gambar akan muncul di sini</span>');
+                gambarBarang = null;
                 $('#modalBarang').modal('show');
+            });
+
+            // Event handler untuk input gambar
+            $('#gambarBarang').change(function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        $('#imagePreview').html(`<img src="${e.target.result}" alt="Preview">`);
+                        gambarBarang = e.target.result; // Simpan data URL gambar
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    $('#imagePreview').html('<span>Pratinjau gambar akan muncul di sini</span>');
+                    gambarBarang = null;
+                }
             });
 
             // Event handler untuk simpan barang
@@ -764,9 +893,9 @@
                 
                 let berhasil;
                 if (editBarangId) {
-                    berhasil = await ubahBarang(editBarangId, nama, harga, kategori);
+                    berhasil = await ubahBarang(editBarangId, nama, harga, kategori, gambarBarang);
                 } else {
-                    berhasil = await tambahBarang(nama, harga, kategori);
+                    berhasil = await tambahBarang(nama, harga, kategori, gambarBarang);
                 }
                 
                 if (berhasil) {
@@ -800,6 +929,7 @@
                     keranjang = [];
                     renderKeranjang();
                     $('#uangDibayar').val('');
+                    muatDaftarPenjualan();
                 }
             });
 
@@ -846,6 +976,12 @@
                 updateTotalBarang();
             }
 
+            // Fungsi untuk memuat daftar penjualan
+            async function muatDaftarPenjualan() {
+                daftarPenjualan = await ambilDaftarPenjualan();
+                updateTotalPenjualan();
+            }
+
             // Fungsi untuk merender daftar barang
             function renderDaftarBarang() {
                 const tbody = $('#tbodyBarang');
@@ -854,7 +990,7 @@
                 if (daftarBarang.length === 0) {
                     tbody.append(`
                         <tr>
-                            <td colspan="5" class="text-center py-4">
+                            <td colspan="6" class="text-center py-4">
                                 <div class="empty-state">
                                     <i class="fas fa-box-open"></i>
                                     <p>Tidak ada data barang</p>
@@ -874,21 +1010,30 @@
                 }
                 
                 daftarBarang.forEach((barang, index) => {
-                    const icon = barang.kategori === 'makanan' ? 'fa-utensils' : 'fa-coffee';
+                    const icon = getIconByCategory(barang.kategori);
                     const row = `
                         <tr>
                             <td>${index + 1}</td>
+                            <td>
+                                ${barang.gambar ? 
+                                    `<img src="${barang.gambar}" alt="${barang.nama}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px;">` : 
+                                    `<div class="bg-light rounded d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                        <i class="fas ${icon} text-muted"></i>
+                                    </div>`
+                                }
+                            </td>
                             <td>
                                 <i class="fas ${icon} me-2 text-primary"></i>
                                 ${barang.nama}
                             </td>
                             <td>${formatRupiah(barang.harga)}</td>
                             <td>
-                                <span class="badge ${barang.kategori === 'makanan' ? 'bg-success' : 'bg-info'}">
-                                    ${barang.kategori === 'makanan' ? 'Makanan' : 'Minuman'}
-                                </span>
-                            </td>
-                            <td>
+                                <span class="badge ${getBadgeColor(barang.kategori)}">
+                                    ${getCategoryName(barang.kategori)}
+                                    </span>
+                                    </td>
+                                    
+                                    <td>
                                 <button class="btn btn-sm btn-warning edit-barang" data-id="${barang.id}">
                                     <i class="fas fa-edit"></i>
                                 </button>
@@ -912,6 +1057,15 @@
                         $('#namaBarang').val(barang.nama);
                         $('#hargaBarang').val(barang.harga);
                         $('#kategoriBarang').val(barang.kategori);
+                        
+                        if (barang.gambar) {
+                            $('#imagePreview').html(`<img src="${barang.gambar}" alt="Preview">`);
+                            gambarBarang = barang.gambar;
+                        } else {
+                            $('#imagePreview').html('<span>Pratinjau gambar akan muncul di sini</span>');
+                            gambarBarang = null;
+                        }
+                        
                         $('#modalBarang').modal('show');
                     }
                 });
@@ -971,12 +1125,17 @@
                 }
                 
                 daftarBarang.forEach(barang => {
-                    const icon = barang.kategori === 'makanan' ? 'fa-utensils' : 'fa-coffee';
+                    const icon = getIconByCategory(barang.kategori);
                     const card = `
                         <div class="col-md-4 mb-3">
                             <div class="product-card" data-id="${barang.id}">
                                 <div class="product-image">
-                                    <i class="fas ${icon}"></i>
+                                    ${barang.gambar ? 
+                                        `<img src="${barang.gambar}" alt="${barang.nama}">` : 
+                                        `<div class="product-image-placeholder">
+                                            <i class="fas ${icon}"></i>
+                                        </div>`
+                                    }
                                 </div>
                                 <div class="p-3">
                                     <h5 class="card-title">${barang.nama}</h5>
@@ -998,7 +1157,6 @@
                 });
             }
 
-            
             // Fungsi untuk menambah barang ke keranjang
             function tambahKeKeranjang(id) {
                 const barang = daftarBarang.find(b => b.id === id);
@@ -1184,14 +1342,60 @@
                 $('#modalStruk').modal('show');
             }
 
+            // Fungsi untuk update total barang
+            function updateTotalBarang() {
+                $('#totalBarangTersedia').text(daftarBarang.length);
+            }
+
+            // Fungsi untuk update total penjualan
+            function updateTotalPenjualan() {
+                const today = new Date().toDateString();
+                const totalHariIni = daftarPenjualan
+                    .filter(penjualan => penjualan.tanggal.toDateString() === today)
+                    .reduce((total, penjualan) => total + penjualan.totalHarga, 0);
+                
+                $('#totalPenjualanHariIni').text(formatRupiah(totalHariIni));
+            }
+
             // Fungsi untuk format rupiah
             function formatRupiah(angka) {
                 return 'Rp ' + angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
             }
 
-            // Fungsi untuk update total barang
-            function updateTotalBarang() {
-                $('#totalBarangTersedia').text(daftarBarang.length);
+            // Fungsi untuk mendapatkan ikon berdasarkan kategori
+            function getIconByCategory(kategori) {
+                switch(kategori) {
+                    case 'snack': return 'fa-cookie';
+                    case 'food': return 'fa-utensils';
+                    case 'drink': return 'fa-coffee';
+                    case 'menu-anak': return 'fa-child';
+                    case 'tambahan': return 'fa-plus-circle';
+                    default: return 'fa-box';
+                }
+            }
+
+            // Fungsi untuk mendapatkan nama kategori yang lebih baik
+            function getCategoryName(kategori) {
+                switch(kategori) {
+                    case 'snack': return 'Snack';
+                    case 'food': return 'Food';
+                    case 'drink': return 'Drink';
+                    case 'menu-anak': return 'Menu Anak';
+                    case 'tambahan': return 'Menu Tambahan';
+                    default: return kategori;
+                }
+            }
+
+            // Fungsi untuk mendapatkan warna badge berdasarkan kategori
+            function getBadgeColor(kategori) {
+                switch(kategori) {
+                    case 'snack': return 'bg-warning';
+                    case 'food': return 'bg-success';
+                    case 'drink': return 'bg-info';
+                    case 'menu-anak': return 'bg-primary';
+                    case 'tambahan': return 'bg-secondary';
+                    default: return 'bg-light text-dark';
+                }
             }
         });
     </script>
