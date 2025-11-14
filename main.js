@@ -575,7 +575,7 @@ $(document).ready(function() {
         $('#pajakHarga').text(formatRupiah(pajak));
         $('#totalHarga').text(formatRupiah(totalHarga));
         
-                // Calculate item count
+        // Calculate item count
         const jumlahItem = keranjang.reduce((total, item) => total + item.jumlah, 0);
         $('#jumlahItemKeranjang').text(jumlahItem);
         
@@ -596,22 +596,15 @@ $(document).ready(function() {
         $('#kembalian').text(formatRupiah(kembalian >= 0 ? kembalian : 0));
     }
 
-    // Function to display receipt
+        // Function to display receipt
     function tampilkanStruk(totalHarga, uangDibayar, metodeBayar) {
         const strukContent = $('#strukContent');
         strukContent.empty();
         
-        // Receipt header
-        const header = `
-            <div class="struk-header">
-                <h5 class="mb-2">Kasir - Sisi Cai Camp Ground</h5>
-                <p class="mb-1">Jl.Raya Gunung Pancar Babakan No. 123</p>
-                <p class="mb-1">Telp: 089516429434</p>
-            </div>
-        `;
-        strukContent.append(header);
-        
-        // Date
+        // Hapus header yang duplikat, gunakan header yang sudah ada di modal struk
+        // Langsung tambahkan konten transaksi tanpa header tambahan
+
+        // Tanggal
         const tanggal = new Date().toLocaleDateString('id-ID', {
             day: '2-digit',
             month: '2-digit',
@@ -622,7 +615,7 @@ $(document).ready(function() {
         strukContent.append(`<div class="struk-item"><span>Tanggal:</span><span>${tanggal}</span></div>`);
         strukContent.append(`<div class="struk-item"><span>Kasir:</span><span>Admin</span></div>`);
         
-        // Products
+        // Barang
         strukContent.append('<div style="margin: 10px 0; border-top: 1px dashed #000;"></div>');
         keranjang.forEach(item => {
             strukContent.append(`
@@ -637,7 +630,7 @@ $(document).ready(function() {
             `);
         });
         
-        // Total, payment, and change
+        // Total, pembayaran, dan kembalian
         strukContent.append('<div style="margin: 10px 0; border-top: 1px dashed #000;"></div>');
         const pajak = Math.round(totalHarga * 0.1);
         const subtotal = totalHarga - pajak;
