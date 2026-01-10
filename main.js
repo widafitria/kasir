@@ -1,4 +1,3 @@
-// Firebase Configuration
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js';
 import {
     getFirestore,
@@ -25,12 +24,12 @@ const firebaseConfig = {
     measurementId: "G-GL8J5GC8XB"
 };
 
-// Initialize Firebase
+// Inisialisasi firebase
 const aplikasi = initializeApp(firebaseConfig);
 const basisdata = getFirestore(aplikasi);
 
-// Firebase Functions
-async function ambilDaftarBarang() {
+// Fungsi untuk mengambil daftar barang
+export async function ambilDaftarBarang() {
     const refDokumen = collection(basisdata, "barang");
     const kueri = query(refDokumen, orderBy("nama"));
     const cuplikanKueri = await getDocs(kueri);
@@ -49,7 +48,8 @@ async function ambilDaftarBarang() {
     return hasilKueri;
 }
 
-async function ambilDaftarPenjualan() {
+// Fungsi untuk mengambil daftar penjualan
+export async function ambilDaftarPenjualan() {
     const refDokumen = collection(basisdata, "penjualan");
     const kueri = query(refDokumen, orderBy("tanggal", "desc"));
     const cuplikanKueri = await getDocs(kueri);
@@ -69,7 +69,8 @@ async function ambilDaftarPenjualan() {
     return hasilKueri;
 }
 
-async function tambahBarang(nama, harga, kategori, gambar = null) {
+// Fungsi untuk menambah barang
+export async function tambahBarang(nama, harga, kategori, gambar = null) {
     try {
         const refDokumen = await addDoc(collection(basisdata, "barang"), {
             nama: nama,
@@ -85,7 +86,8 @@ async function tambahBarang(nama, harga, kategori, gambar = null) {
     }
 }
 
-async function ubahBarang(id, nama, harga, kategori, gambar = null) {
+// Fungsi untuk mengedit barang
+export async function ubahBarang(id, nama, harga, kategori, gambar = null) {
     try {
         const refDokumen = doc(basisdata, "barang", id);
         await updateDoc(refDokumen, {
@@ -102,7 +104,8 @@ async function ubahBarang(id, nama, harga, kategori, gambar = null) {
     }
 }
 
-async function hapusBarang(id) {
+// Fungsi untuk menghapus barang
+export async function hapusBarang(id) {
     try {
         await deleteDoc(doc(basisdata, "barang", id));
         console.log("Berhasil menghapus data barang");
@@ -113,7 +116,8 @@ async function hapusBarang(id) {
     }
 }
 
-async function tambahPenjualan(keranjang, totalHarga, metodeBayar) {
+// Fungsi untuk menambah penjualan
+export async function tambahPenjualan(keranjang, totalHarga, metodeBayar) {
     try {
         const refDokumen = await addDoc(collection(basisdata, "penjualan"), {
             items: keranjang,
@@ -129,7 +133,7 @@ async function tambahPenjualan(keranjang, totalHarga, metodeBayar) {
     }
 }
 
-// Export functions to global scope
+// Ekspor fungsi untuk digunakan di file lain
 window.ambilDaftarBarang = ambilDaftarBarang;
 window.tambahBarang = tambahBarang;
 window.ubahBarang = ubahBarang;
@@ -137,7 +141,7 @@ window.hapusBarang = hapusBarang;
 window.ambilDaftarPenjualan = ambilDaftarPenjualan;
 window.tambahPenjualan = tambahPenjualan;
 
-// Main Application Logic
+// Aplikasi JavaScript
 $(document).ready(function() {
     let daftarBarang = [];
     let daftarPenjualan = [];
@@ -146,29 +150,32 @@ $(document).ready(function() {
     let metodeBayar = 'cash';
     let gambarBarang = null;
 
-    // Initialize application
+    // Inisialisasi aplikasi
     muatDaftarBarang();
     muatDaftarPenjualan();
+    
+    // Tampilkan tab transaksi sebagai default
+    muatBarangUntukTransaksi();
 
-    // Event handler for tabs
+    // Event handler untuk tab di sidebar
     $('.nav-link[data-tab]').click(function() {
         const tabId = $(this).data('tab');
         
-        // Update active tab
-        $('.nav-link').removeClass('active');
+        // Update tab aktif di sidebar
+        $('.sidebar .nav-link').removeClass('active');
         $(this).addClass('active');
         
-        // Show appropriate tab content
+        // Tampilkan konten tab yang sesuai
         $('.tab-content').addClass('d-none');
         $(`#tab${tabId.charAt(0).toUpperCase() + tabId.slice(1)}`).removeClass('d-none');
         
-        // If transaction tab, reload product list
+        // Jika tab transaksi, muat ulang daftar barang
         if (tabId === 'transaksi') {
             muatBarangUntukTransaksi();
         }
     });
 
-    // Event handler for add product button
+    // Event handler untuk tombol tambah barang
     $('#btnTambahBarang').click(function() {
         editBarangId = null;
         $('#modalBarangTitle').text('Tambah Barang');
@@ -178,14 +185,14 @@ $(document).ready(function() {
         $('#modalBarang').modal('show');
     });
 
-    // Event handler for image input
+    // Event handler untuk input gambar
     $('#gambarBarang').change(function(e) {
         const file = e.target.files[0];
         if (file) {
             const reader = new FileReader();
             reader.onload = function(e) {
                 $('#imagePreview').html(`<img src="${e.target.result}" alt="Preview">`);
-                gambarBarang = e.target.result; // Save image data URL
+                gambarBarang = e.target.result; // Simpan data URL gambar
             };
             reader.readAsDataURL(file);
         } else {
@@ -194,7 +201,7 @@ $(document).ready(function() {
         }
     });
 
-    // Event handler for save product
+    // Event handler untuk simpan barang
     $('#btnSimpanBarang').click(async function() {
         const nama = $('#namaBarang').val();
         const harga = $('#hargaBarang').val();
@@ -221,7 +228,7 @@ $(document).ready(function() {
         }
     });
 
-    // Event handler for process transaction button
+    // Event handler untuk tombol proses transaksi
     $('#btnProsesTransaksi').click(async function() {
         if (keranjang.length === 0) {
             alert('Keranjang masih kosong!');
@@ -247,56 +254,56 @@ $(document).ready(function() {
         }
     });
 
-    // Event handler for reset transaction button
+    // Event handler untuk tombol reset transaksi
     $('#btnResetTransaksi').click(function() {
         keranjang = [];
         renderKeranjang();
         $('#uangDibayar').val('');
     });
 
-    // Event handler for paid amount input
+    // Event handler untuk input uang dibayar
     $('#uangDibayar').on('input', function() {
         hitungKembalian();
     });
 
-    // Event handler for print receipt button
+    // Event handler untuk tombol cetak struk
     $('#btnCetakStruk').click(function() {
         window.print();
     });
 
-    // Event handler for product search in transaction
+    // Event handler untuk pencarian barang di transaksi
     $('#cariBarang').on('input', function() {
         muatBarangUntukTransaksi();
     });
 
-    // Event handler for category filter
+    // Event handler untuk filter kategori
     $('.category-btn').click(function() {
         $('.category-btn').removeClass('active');
         $(this).addClass('active');
         muatBarangUntukTransaksi();
     });
 
-    // Event handler for payment method
+    // Event handler untuk metode pembayaran
     $('.payment-option').click(function() {
         $('.payment-option').removeClass('active');
         $(this).addClass('active');
         metodeBayar = $(this).data('method');
     });
 
-    // Function to load product list
+    // Fungsi untuk memuat daftar barang
     async function muatDaftarBarang() {
         daftarBarang = await ambilDaftarBarang();
         renderDaftarBarang();
         updateTotalBarang();
     }
 
-    // Function to load sales list
+    // Fungsi untuk memuat daftar penjualan
     async function muatDaftarPenjualan() {
         daftarPenjualan = await ambilDaftarPenjualan();
         updateTotalPenjualan();
     }
 
-    // Function to render product list
+    // Fungsi untuk merender daftar barang
     function renderDaftarBarang() {
         const tbody = $('#tbodyBarang');
         tbody.empty();
@@ -359,7 +366,7 @@ $(document).ready(function() {
             tbody.append(row);
         });
         
-        // Event handler for edit product buttons
+        // Event handler untuk tombol edit barang
         $('.edit-barang').click(function() {
             const id = $(this).data('id');
             const barang = daftarBarang.find(b => b.id === id);
@@ -383,7 +390,7 @@ $(document).ready(function() {
             }
         });
         
-        // Event handler for delete product buttons
+        // Event handler untuk tombol hapus barang
         $('.hapus-barang').click(async function() {
             const id = $(this).data('id');
             if (confirm('Apakah Anda yakin ingin menghapus barang ini?')) {
@@ -398,7 +405,7 @@ $(document).ready(function() {
         });
     }
 
-    // Function to load products for transaction
+    // Fungsi untuk memuat barang untuk transaksi
     function muatBarangUntukTransaksi() {
         const kataKunci = $('#cariBarang').val().toLowerCase();
         const kategoriFilter = $('.category-btn.active').data('category');
@@ -420,7 +427,7 @@ $(document).ready(function() {
         renderBarangUntukTransaksi(barangTersaring);
     }
 
-    // Function to render products for transaction
+    // Fungsi untuk merender barang untuk transaksi
     function renderBarangUntukTransaksi(daftarBarang) {
         const container = $('#daftarBarangTransaksi');
         container.empty();
@@ -463,14 +470,14 @@ $(document).ready(function() {
             container.append(card);
         });
         
-        // Event handler for add to cart buttons
+        // Event handler untuk tombol tambah ke keranjang
         $('.tambah-ke-keranjang').click(function() {
             const id = $(this).closest('.product-card').data('id');
             tambahKeKeranjang(id);
         });
     }
 
-    // Function to add product to cart
+    // Fungsi untuk menambah barang ke keranjang
     function tambahKeKeranjang(id) {
         const barang = daftarBarang.find(b => b.id === id);
         
@@ -494,7 +501,7 @@ $(document).ready(function() {
         }
     }
 
-    // Function to render cart
+    // Fungsi untuk merender keranjang
     function renderKeranjang() {
         const container = $('#keranjang');
         container.empty();
@@ -538,13 +545,13 @@ $(document).ready(function() {
             container.append(row);
         });
         
-        // Event handler for increase item buttons
+        // Event handler untuk tombol tambah item
         $('.tambah-item').click(function() {
             const id = $(this).data('id');
             tambahKeKeranjang(id);
         });
         
-        // Event handler for decrease item buttons
+        // Event handler untuk tombol kurangi item
         $('.kurangi-item').click(function() {
             const id = $(this).data('id');
             const item = keranjang.find(item => item.id === id);
@@ -560,7 +567,7 @@ $(document).ready(function() {
             }
         });
         
-        // Event handler for remove item buttons
+        // Event handler untuk tombol hapus item
         $('.hapus-item').click(function() {
             const id = $(this).data('id');
             keranjang = keranjang.filter(item => item.id !== id);
@@ -575,20 +582,20 @@ $(document).ready(function() {
         $('#pajakHarga').text(formatRupiah(pajak));
         $('#totalHarga').text(formatRupiah(totalHarga));
         
-        // Calculate item count
+        // Hitung jumlah item
         const jumlahItem = keranjang.reduce((total, item) => total + item.jumlah, 0);
         $('#jumlahItemKeranjang').text(jumlahItem);
         
-        // Update change
+        // Update kembalian
         hitungKembalian();
     }
 
-    // Function to calculate cart total
+    // Fungsi untuk menghitung total keranjang
     function hitungTotalKeranjang() {
         return keranjang.reduce((total, item) => total + item.total, 0);
     }
 
-    // Function to calculate change
+    // Fungsi untuk menghitung kembalian
     function hitungKembalian() {
         const uangDibayar = parseInt($('#uangDibayar').val()) || 0;
         const totalHarga = hitungTotalKeranjang();
@@ -596,14 +603,11 @@ $(document).ready(function() {
         $('#kembalian').text(formatRupiah(kembalian >= 0 ? kembalian : 0));
     }
 
-        // Function to display receipt
+    // Fungsi untuk menampilkan struk
     function tampilkanStruk(totalHarga, uangDibayar, metodeBayar) {
         const strukContent = $('#strukContent');
         strukContent.empty();
         
-        // Hapus header yang duplikat, gunakan header yang sudah ada di modal struk
-        // Langsung tambahkan konten transaksi tanpa header tambahan
-
         // Tanggal
         const tanggal = new Date().toLocaleDateString('id-ID', {
             day: '2-digit',
@@ -638,7 +642,7 @@ $(document).ready(function() {
         strukContent.append(`<div class="struk-item"><span>Subtotal:</span><span>${formatRupiah(subtotal)}</span></div>`);
         strukContent.append(`<div class="struk-item"><span>Pajak (10%):</span><span>${formatRupiah(pajak)}</span></div>`);
         strukContent.append(`<div class="struk-item struk-total"><span>Total:</span><span>${formatRupiah(totalHarga)}</span></div>`);
-        strukContent.append(`<div class="struk-item"><span>Bayar (${metodeBayar === 'cash' ? 'Cash' : 'Transfer'}):</span><span>${formatRupiah(uangDibayar)}</span></div>`);
+        strukContent.append(`<div class="struk-item"><span>Bayar (Cash):</span><span>${formatRupiah(uangDibayar)}</span></div>`);
         strukContent.append(`<div class="struk-item"><span>Kembalian:</span><span>${formatRupiah(uangDibayar - totalHarga)}</span></div>`);
         
         // Footer
@@ -648,12 +652,12 @@ $(document).ready(function() {
         $('#modalStruk').modal('show');
     }
 
-    // Function to update product count
+    // Fungsi untuk update total barang
     function updateTotalBarang() {
         $('#totalBarangTersedia').text(daftarBarang.length);
     }
 
-    // Function to update sales total
+    // Fungsi untuk update total penjualan
     function updateTotalPenjualan() {
         const today = new Date().toDateString();
         const totalHariIni = daftarPenjualan
@@ -663,12 +667,12 @@ $(document).ready(function() {
         $('#totalPenjualanHariIni').text(formatRupiah(totalHariIni));
     }
 
-    // Function to format currency
+    // Fungsi untuk format rupiah
     function formatRupiah(angka) {
         return 'Rp ' + angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
     }
 
-    // Function to get icon by category
+    // Fungsi untuk mendapatkan ikon berdasarkan kategori
     function getIconByCategory(kategori) {
         switch(kategori) {
             case 'snack': return 'fa-cookie';
@@ -680,7 +684,7 @@ $(document).ready(function() {
         }
     }
 
-    // Function to get category display name
+    // Fungsi untuk mendapatkan nama kategori yang lebih baik
     function getCategoryName(kategori) {
         switch(kategori) {
             case 'snack': return 'Snack';
@@ -692,7 +696,7 @@ $(document).ready(function() {
         }
     }
 
-    // Function to get badge color by category
+    // Fungsi untuk mendapatkan warna badge berdasarkan kategori
     function getBadgeColor(kategori) {
         switch(kategori) {
             case 'snack': return 'bg-warning';
@@ -704,4 +708,3 @@ $(document).ready(function() {
         }
     }
 });
-        
